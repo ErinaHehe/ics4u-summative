@@ -1,0 +1,89 @@
+.app-container {
+  display: flex;
+  height: 100vh;
+}
+
+.filter {
+  width: 200px;
+  padding: 20px;
+  position: fixed;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.filter h3 {
+  margin-bottom: 10px;
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+.multi_select {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.genre-item {
+  padding: 10px;
+  margin: 5px 0;
+  cursor: pointer;
+  background-color: #008cba;
+  color: white;
+  border-radius: 5px;
+  text-align: center;
+  transition: background-color 0.3s;
+}
+
+.genre-item:hover {
+  background-color: #00a8e0;
+}
+
+.main-content {
+  margin-left: 220px;
+  padding: 20px;
+}
+
+.app-container > .header,
+.app-container > .outlet-container {
+  margin-left: 250px;
+  flex-grow: 1;
+  padding: 20px;
+  overflow: auto;
+}
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: transparent;
+  color: black;
+  padding: 10px 20px;
+  font-size: 1.5rem;
+  box-shadow: none;
+  z-index: 1000;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #008cba;
+}
+
+.logout-button {
+  background-color: #008cba;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.logout-button:hover {
+  background-color: #00a8e0;
+}
