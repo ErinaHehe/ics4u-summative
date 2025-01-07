@@ -8,8 +8,15 @@ function DetailView() {
   const { id } = useParams();
   const [movieDetails, setMovieDetails] = useState(null);
   const [trailers, setTrailers] = useState([]);
+  const { user, cart, setCart } = useStoreContext();
 
-  const { cart, setCart } = useStoreContext();
+  const addToCart = () => {
+    setCart((prevCart) => {
+      const cart = prevCart.set(params.id, { title: movie.original_title, url: movie.poster_path });
+      localStorage.setItem(user.uid, JSON.stringify(cart.toJS()));
+      return cart;
+    });
+  }
 
   useEffect(() => {
     async function fetchMovieDetails() {
