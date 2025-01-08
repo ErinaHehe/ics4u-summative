@@ -21,9 +21,9 @@ function RegisterView() {
       const user = (await createUserWithEmailAndPassword(auth, email, password)).user;
       await updateProfile(user, { displayName: `${firstName} ${lastName}` });
       setUser(user);
-      navigate('/movies/all');
+      navigate('/movies');
     } catch (error) {
-      alert("Error creating user with email and password!");
+      alert("Error registering!");
     }
   };
 
@@ -31,9 +31,9 @@ function RegisterView() {
     try {
       const user = (await signInWithPopup(auth, new GoogleAuthProvider())).user;
       setUser(user);
-      navigate('/movies/all');
+      navigate('/movies');
     } catch {
-      alert("Error creating user with email and password!");
+      alert("Error registering!");
     }
   }
 
@@ -93,11 +93,11 @@ function RegisterView() {
           />
 
           <button type="submit" className="register-button">Register</button>
+          <button onClick={() => registerByGoogle()} className="register-button">Register by Google</button>
         </form>
         <p className="login-link">
           Already have an account? <a href="#">Login</a>
         </p>
-        <button onClick={() => registerByGoogle()} className="register-button">Register by Google</button>
       </div>
     </div>
   );

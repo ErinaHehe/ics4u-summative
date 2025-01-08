@@ -22,7 +22,7 @@ function LoginView() {
       setUser(user);
     } catch (error) {
       console.log(error);
-      alert("Error!");
+      alert("Error signing in!");
     }
   }
 
