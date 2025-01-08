@@ -14,11 +14,6 @@ function RegisterView() {
   const { setUser } = useStoreContext();
   const navigate = useNavigate();
 
-  const genres = [
-    "Action", "Adventure", "Animation", "Comedy", "Crime", "Family", "Fantasy",
-    "History", "Horror", "Music", "Mystery", "Sci-Fi", "Thriller", "War", "Western"
-  ];
-
   const registerByEmail = async (event) => {
     event.preventDefault();
 
@@ -26,35 +21,19 @@ function RegisterView() {
       const user = (await createUserWithEmailAndPassword(auth, email, password)).user;
       await updateProfile(user, { displayName: `${firstName} ${lastName}` });
       setUser(user);
-      navigate('/movies');
+      navigate('/movies/all');
     } catch (error) {
-      alert("Error registering!");
+      alert("Error creating user with email and password!");
     }
-
-    if (!firstName || !lastName || !email || !password || !rePassword) {
-      alert("All fields must be filled!");
-      return;
-    }
-
-    if (password !== rePassword) {
-      alert("Passwords do not match!");
-      return;
-    }
-
-    if (selectedGenres.size < 10) {
-      alert("Please select at least 10 genres.");
-      return;
-    }
-    
   };
 
   const registerByGoogle = async () => {
     try {
       const user = (await signInWithPopup(auth, new GoogleAuthProvider())).user;
       setUser(user);
-      navigate('/movies');
+      navigate('/movies/all');
     } catch {
-      alert("Error registering!");
+      alert("Error creating user with email and password!");
     }
   }
 
@@ -113,29 +92,12 @@ function RegisterView() {
             required
           />
 
-          <fieldset>
-            <legend>Select Your Favorite Genres (at least 10)</legend>
-            {genres.map((genre) => (
-              <div key={genre}>
-                <label>
-                  <input
-                    type="checkbox"
-                    value={genre}
-                    onChange={(e) => handleCheckboxChange(e)}
-                  />
-                  {genre}
-                </label>
-              </div>
-            ))}
-          </fieldset>
-
           <button type="submit" className="register-button">Register</button>
-          <button onClick={() => registerByGoogle()} className="register-button">Register by Google</button>
         </form>
         <p className="login-link">
           Already have an account? <a href="#">Login</a>
         </p>
-
+        <button onClick={() => registerByGoogle()} className="register-button">Register by Google</button>
       </div>
     </div>
   );
