@@ -1,12 +1,16 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import { useStoreContext } from "../context";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase";
 import "./MoviesView.css";
 
 function MoviesView() {
   const navigate = useNavigate();
-  const { user } = useStoreContext();
+  const { user, setUser } = useStoreContext();
 
   function logout() {
+    setUser(null);
+    signOut(auth);
     navigate("/");
   }
 

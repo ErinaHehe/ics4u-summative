@@ -11,11 +11,6 @@ function CartView() {
     await setDoc(docRef, cart.toJS());
   }
 
-    // Code to read from Friestore
-    // const docRef = doc(firestore, "users", user.uid);
-    // const data = (await getDoc(docRef)).data();
-    // const cart = Map(data);
-
   return (
     <div className="cart-view">
       <h1>Shopping Cart</h1>

@@ -9,7 +9,7 @@ function DetailView() {
   const [movieDetails, setMovieDetails] = useState(null);
   const [trailers, setTrailers] = useState([]);
   const { user, cart, setCart } = useStoreContext();
-
+  
   const addToCart = () => {
     setCart((prevCart) => {
       const cart = prevCart.set(params.id, { title: movie.original_title, url: movie.poster_path });
