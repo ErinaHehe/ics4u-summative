@@ -11,8 +11,14 @@ function RegisterView() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  // const [favGenres, setFavGenres] = useState("");
   const { setUser } = useStoreContext();
   const navigate = useNavigate();
+
+  const genres = [
+    "Action", "Adventure", "Animation", "Comedy", "Crime", "Family", "Fantasy",
+    "History", "Horror", "Music", "Mystery", "Sci-Fi", "Thriller", "War", "Western"
+  ];
 
   const registerByEmail = async (event) => {
     event.preventDefault();
@@ -96,7 +102,7 @@ function RegisterView() {
           <button onClick={() => registerByGoogle()} className="register-button">Register by Google</button>
         </form>
         <p className="login-link">
-          Already have an account? <a href="#">Login</a>
+          Already have an account? <a href="login">Login</a>
         </p>
       </div>
     </div>

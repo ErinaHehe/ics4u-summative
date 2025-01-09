@@ -51,7 +51,7 @@ function LoginView() {
           <button type="submit" className="login-button">Login by Email</button>
         </form>
         <button onClick={() => loginByGoogle()} type="submit" className="login-button">Login by Google</button>
-        <p className="register-link">New to Flixify? <a href="#">Register now</a></p>
+        <p className="register-link">New to Flixify? <a href="register">Register now</a></p>
       </div>
     </div>
   );
