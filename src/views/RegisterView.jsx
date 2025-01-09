@@ -29,6 +29,7 @@ function RegisterView() {
       setUser(user);
       navigate('/movies');
     } catch (error) {
+      console.log(error);
       alert("Error registering!");
     }
   };
@@ -38,7 +39,8 @@ function RegisterView() {
       const user = (await signInWithPopup(auth, new GoogleAuthProvider())).user;
       setUser(user);
       navigate('/movies');
-    } catch {
+    } catch (error) {
+      console.log(error);
       alert("Error registering!");
     }
   }
