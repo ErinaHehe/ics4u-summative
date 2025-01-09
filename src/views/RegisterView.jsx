@@ -29,7 +29,8 @@ function RegisterView() {
       setUser(user);
       navigate('/movies');
     } catch (error) {
-      console.log(error);
+      //console.log(error);
+      console.log();
       alert("Error registering!");
     }
   };
@@ -40,7 +41,7 @@ function RegisterView() {
       setUser(user);
       navigate('/movies');
     } catch (error) {
-      console.log(error);
+      //console.log(error);
       alert("Error registering!");
     }
   }

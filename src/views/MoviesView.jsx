@@ -49,9 +49,10 @@ function MoviesView() {
     <div className="app-container">
       <div className="header">
         <h1>{`Hello ${user.firstName}!`}</h1>
+        <button onClick={() => logout()} className="logout-button">Logout</button> 
         <button onClick={() => cart()} className="logout-button">Cart</button>
         <button onClick={() => setting()} className="logout-button">Setting</button>
-        <button onClick={() => logout()} className="logout-button">Logout</button>
+        
       </div>
       <div className="filter">
         <h3>Genres</h3>
