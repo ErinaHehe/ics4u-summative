@@ -40,39 +40,38 @@ function MoviesView() {
     { genre: "Western", id: 37 },
   ];
 
+    function handleGenreClick(id) {
+      navigate(`/movies/genre/${id}`);
+    }
 
-  function handleGenreClick(id) {
-    navigate(`/movies/genre/${id}`);
+    return (
+      <div className="app-container">
+        <div className="header">
+          <h1>{`Hello ${user.firstname}!`}</h1>
+          <button onClick={() => setting()} className="logout-button">Setting</button>
+          <button onClick={() => logout()} className="logout-button">Logout</button>
+          <button onClick={() => cart()} className="logout-button">Cart</button>
+
+        </div>
+        <div className="filter">
+          <h3>Genres</h3>
+          <ul id="with_genres" className="multi_select text">
+            {genres.map((genre) => (
+              <li
+                key={genre.id}
+                className="genre-item"
+                onClick={() => handleGenreClick(genre.id)}
+              >
+                {genre.genre}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="main-content">
+          <Outlet />
+        </div>
+      </div>
+    );
   }
 
-  return (
-    <div className="app-container">
-      <div className="header">
-        <h1>{`Hello ${user.firstname}!`}</h1>
-        <button onClick={() => logout()} className="logout-button">Logout</button> 
-        <button onClick={() => cart()} className="logout-button">Cart</button>
-        <button onClick={() => setting()} className="logout-button">Setting</button>
-        
-      </div>
-      <div className="filter">
-        <h3>Genres</h3>
-        <ul id="with_genres" className="multi_select text">
-          {genres.map((genre) => (
-            <li
-              key={genre.id}
-              className="genre-item"
-              onClick={() => handleGenreClick(genre.id)}
-            >
-              {genre.genre}
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div className="main-content">
-        <Outlet />
-      </div>
-    </div>
-  );
-}
-
-export default MoviesView;
+  export default MoviesView;

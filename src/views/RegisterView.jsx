@@ -11,8 +11,8 @@ function RegisterView() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  // const [favGenres, setFavGenres] = useState("");
-  const { setUser } = useStoreContext();
+  const [selectedGenres, setSelectedGenres] = useState([]);
+  const { setUser, setGenres } = useStoreContext();
   const navigate = useNavigate();
 
   const genres = [
@@ -20,16 +20,29 @@ function RegisterView() {
     "History", "Horror", "Music", "Mystery", "Sci-Fi", "Thriller", "War", "Western"
   ];
 
+  const handleCheckboxChange = (e) => {
+    const { value, checked } = e.target;
+    setSelectedGenres((prev) =>
+      checked ? [...prev, value] : prev.filter((genre) => genre !== value)
+    );
+  };
+
   const registerByEmail = async (event) => {
     event.preventDefault();
+
+    if (selectedGenres.length < 10) {
+      alert("Please select at least 10 genres.");
+      return;
+    }
 
     try {
       const user = (await createUserWithEmailAndPassword(auth, email, password)).user;
       await updateProfile(user, { displayName: `${firstName} ${lastName}` });
       setUser(user);
+      setGenres(selectedGenres);
       navigate('/movies');
     } catch (error) {
-      //console.log(error);
+      console.log(error);
       console.log();
       alert("Error registering!");
     }
@@ -100,6 +113,23 @@ function RegisterView() {
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
           />
+
+          <fieldset>
+            <legend>Select Your Favorite Genres (at least 10)</legend>
+            {genres.map((genre) => (
+              <div key={genre}>
+                <label>
+                  <input
+                    type="checkbox"
+                    value={genre}
+                    onChange={(e) => handleCheckboxChange(e)}
+                  />
+                  {genre}
+                </label>
+              </div>
+            ))}
+          </fieldset>
+
 
           <button type="submit" className="register-button">Register</button>
           <button onClick={() => registerByGoogle()} className="register-button">Register by Google</button>
