@@ -10,9 +10,9 @@ function CartView() {
     const docRef = doc(firestore, "users", user.uid);
     await setDoc(docRef, cart.toJS());
 
-    if (checkout) {
-      return alert("Thank you for your purchease!");
-    }
+    // Code to read from Friestore
+    const data = (await getDoc(docRef)).data();
+    const cart = Map(data);
   }
 
   return (

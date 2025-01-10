@@ -6,7 +6,7 @@ import "./MoviesView.css";
 
 function MoviesView() {
   const navigate = useNavigate();
-  const { user, setUser } = useStoreContext();
+  const { user, setUser, genres, setGenres } = useStoreContext();
 
   function logout() {
     setUser(null);
@@ -22,7 +22,7 @@ function MoviesView() {
     navigate("/setting")
   }
 
-  const genres = [
+  const favGenres = [
     { genre: "Action", id: 28 },
     { genre: "Adventure", id: 12 },
     { genre: "Animation", id: 16 },
@@ -49,14 +49,14 @@ function MoviesView() {
         <div className="header">
           <h1>{`Hello ${user.firstname}!`}</h1>
           <button onClick={() => setting()} className="logout-button">Setting</button>
-          <button onClick={() => logout()} className="logout-button">Logout</button>
           <button onClick={() => cart()} className="logout-button">Cart</button>
+          <button onClick={() => logout()} className="logout-button">Logout</button>
 
         </div>
         <div className="filter">
           <h3>Genres</h3>
-          <ul id="with_genres" className="multi_select text">
-            {genres.map((genre) => (
+          <ul id="with_favGenres" className="multi_select text">
+            {favGenres.map((genre) => (
               <li
                 key={genre.id}
                 className="genre-item"
