@@ -37,13 +37,14 @@ function RegisterView() {
 
     try {
       const user = (await createUserWithEmailAndPassword(auth, email, password)).user;
-      await updateProfile(user, { displayName: `${firstName} ${lastName}` });
+      await updateProfile(user, { displayName: `${firstName}` });
       setUser(user);
       setGenres(selectedGenres);
+      console.log(user);
+      console.log(selectedGenres);
       navigate('/movies');
     } catch (error) {
       console.log(error);
-      console.log();
       alert("Error registering!");
     }
   };
@@ -54,7 +55,6 @@ function RegisterView() {
       setUser(user);
       navigate('/movies');
     } catch (error) {
-      //console.log(error);
       alert("Error registering!");
     }
   }

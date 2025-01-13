@@ -18,7 +18,7 @@ function CartView() {
   return (
     <div className="cart-view">
       <h1>Shopping Cart</h1>
-      <button onClick={() => checkout()}>Checkout</button>
+      <button onClick={() => checkout()} className="checkout-button">Checkout</button>
       <div className="cart-items">
         {
           cart.entrySeq().map(([key, value]) => {
@@ -35,5 +35,6 @@ function CartView() {
     </div>
   )
 }
+console.log();
 
 export default CartView;

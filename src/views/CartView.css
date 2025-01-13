@@ -65,4 +65,18 @@
   .cart-item button:hover {
     background-color: #00a8e0;
   }
+
+  .checkout-button {
+    background-color: #008cba;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+  
+  .checkout-button:hover {
+    background-color: #00a8e0;
+  }
   
