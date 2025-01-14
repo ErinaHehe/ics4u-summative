@@ -4,15 +4,11 @@ import { doc, setDoc } from "firebase/firestore";
 import "./Cartview.css";
 
 function CartView() {
-  const { cart, setCart } = useStoreContext();
+  const { cart, setCart, user } = useStoreContext();
 
   const checkout = async () => {
     const docRef = doc(firestore, "users", user.uid);
     await setDoc(docRef, cart.toJS());
-
-    // Code to read from Firestore
-    const data = (await getDoc(docRef)).data();
-    const cart = Map(data);
   }
 
   return (

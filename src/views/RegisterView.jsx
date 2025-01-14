@@ -1,7 +1,8 @@
 import "./RegisterView.css";
 import { useState } from "react";
 import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { auth } from "../firebase";
+import { auth, firestore } from "../firebase";
+import { doc, setDoc } from "firebase/firestore";
 import { useStoreContext } from "../context";
 import { useNavigate } from "react-router-dom";
 
@@ -12,8 +13,13 @@ function RegisterView() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [selectedGenres, setSelectedGenres] = useState([]);
-  const { setUser, setGenres } = useStoreContext();
+  const { user, setUser, setGenres } = useStoreContext();
   const navigate = useNavigate();
+
+  const checkout = async () => {
+    const docRef = doc(firestore, "users", user.uid);
+    await setDoc(docRef, user.toJS());
+  }
 
   const genres = [
     "Action", "Adventure", "Animation", "Comedy", "Crime", "Family", "Fantasy",
@@ -44,7 +50,6 @@ function RegisterView() {
       console.log(selectedGenres);
       navigate('/movies');
     } catch (error) {
-      console.log(error);
       alert("Error registering!");
     }
   };
