@@ -57,7 +57,7 @@
   left: 0;
   width: 100%;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   background: transparent;
   color: black;
