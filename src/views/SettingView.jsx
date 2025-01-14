@@ -75,6 +75,8 @@ function SettingsView() {
             ))}
           </fieldset>
 
+          <h2>Past Purchases</h2>
+
           <button type="submit" className="settings-button">Save Changes</button>
         </form>
       </div>

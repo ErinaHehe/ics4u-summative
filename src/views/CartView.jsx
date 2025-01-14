@@ -10,7 +10,7 @@ function CartView() {
     const docRef = doc(firestore, "users", user.uid);
     await setDoc(docRef, cart.toJS());
 
-    // Code to read from Friestore
+    // Code to read from Firestore
     const data = (await getDoc(docRef)).data();
     const cart = Map(data);
   }
@@ -35,6 +35,5 @@ function CartView() {
     </div>
   )
 }
-console.log();
 
 export default CartView;
