@@ -16,7 +16,7 @@ function RegisterView() {
   const { user, setUser, setGenres } = useStoreContext();
   const navigate = useNavigate();
 
-  const checkout = async () => {
+  const genre = async () => {
     const docRef = doc(firestore, "users", user.uid);
     await setDoc(docRef, user.toJS());
   }
