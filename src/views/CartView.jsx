@@ -10,6 +10,7 @@ function CartView() {
     const docRef = doc(firestore, "users", user.uid);
     await setDoc(docRef, cart.toJS());
   }
+  console.log(cart);
 
   return (
     <div className="cart-view">
