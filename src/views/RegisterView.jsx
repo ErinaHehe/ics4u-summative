@@ -13,13 +13,8 @@ function RegisterView() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [selectedGenres, setSelectedGenres] = useState([]);
-  const { user, setUser, setGenres } = useStoreContext();
+  const { user, setUser, userGenres, setUserGenres } = useStoreContext();
   const navigate = useNavigate();
-
-  const genre = async () => {
-    const docRef = doc(firestore, "users", user.uid);
-    await setDoc(docRef, user.toJS());
-  }
 
   const genres = [
     "Action", "Adventure", "Animation", "Comedy", "Crime", "Family", "Fantasy",
@@ -43,9 +38,9 @@ function RegisterView() {
 
     try {
       const user = (await createUserWithEmailAndPassword(auth, email, password)).user;
-      await updateProfile(user, { displayName: `${firstName}` });
+      await updateProfile(user, { displayName: `${firstName}`, selectedGenres });
       setUser(user);
-      setGenres(selectedGenres);
+      setUserGenres(selectedGenres);
       console.log(user);
       console.log(selectedGenres);
       navigate('/movies');
@@ -55,14 +50,22 @@ function RegisterView() {
   };
 
   const registerByGoogle = async () => {
+
+    if (selectedGenres.length < 2) {
+      alert("Please select at least 10 genres.");
+      return;
+    }
+
     try {
       const user = (await signInWithPopup(auth, new GoogleAuthProvider())).user;
       setUser(user);
+      const docRef = doc(firestore, "users", user.uid);
+      await setDoc(docRef, userGenres.toJS());
       navigate('/movies');
     } catch (error) {
       alert("Error registering!");
     }
-  }
+  };
 
   return (
     <div className="register-container">

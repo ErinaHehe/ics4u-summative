@@ -14,8 +14,9 @@ function SettingsView() {
     "History", "Horror", "Music", "Mystery", "Sci-Fi", "Thriller", "War", "Western"
   ];
 
-  /* if (user.email) { something like this
-  } */
+  if (user.emailVerifided) {
+    
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

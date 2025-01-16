@@ -4,11 +4,15 @@ import { doc, setDoc } from "firebase/firestore";
 import "./Cartview.css";
 
 function CartView() {
-  const { cart, setCart, user } = useStoreContext();
+  const { user, cart, setCart, } = useStoreContext();
 
   const checkout = async () => {
     const docRef = doc(firestore, "users", user.uid);
     await setDoc(docRef, cart.toJS());
+
+    if (checkout) {
+      alert("Thank you for your purchase!");
+    }
   }
   console.log(cart);
 
