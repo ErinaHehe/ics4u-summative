@@ -13,12 +13,25 @@ function RegisterView() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [selectedGenres, setSelectedGenres] = useState([]);
-  const { user, setUser, userGenres, setUserGenres } = useStoreContext();
+  const { setUser, setUserGenres } = useStoreContext();
   const navigate = useNavigate();
 
   const genres = [
-    "Action", "Adventure", "Animation", "Comedy", "Crime", "Family", "Fantasy",
-    "History", "Horror", "Music", "Mystery", "Sci-Fi", "Thriller", "War", "Western"
+    "Action",
+    "Adventure",
+    "Animation",
+    "Comedy",
+    "Crime",
+    "Family",
+    "Fantasy",
+    "History",
+    "Horror",
+    "Music",
+    "Mystery",
+    "Sci-Fi",
+    "Thriller",
+    "War",
+    "Western",
   ];
 
   const handleCheckboxChange = (e) => {
@@ -31,39 +44,63 @@ function RegisterView() {
   const registerByEmail = async (event) => {
     event.preventDefault();
 
+    if (password !== confirmPassword) {
+      alert("Passwords do not match.");
+      return;
+    }
+
     if (selectedGenres.length < 10) {
       alert("Please select at least 10 genres.");
       return;
     }
 
     try {
-      const user = (await createUserWithEmailAndPassword(auth, email, password)).user;
-      await updateProfile(user, { displayName: `${firstName}`, selectedGenres });
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      await updateProfile(user, { displayName: firstName });
+      const userDocRef = doc(firestore, "users", user.uid);
+      await setDoc(userDocRef, {
+        genres: selectedGenres,
+        purchasedMovies: [],
+        cart: [],
+      });
+
       setUser(user);
       setUserGenres(selectedGenres);
-      console.log(user);
-      console.log(selectedGenres);
-      navigate('/movies');
+      navigate("/movies");
     } catch (error) {
-      alert("Error registering!");
+      if (error.code === "auth/email-already-in-use") {
+        alert("This email is already registered.");
+      } else {
+        alert("Error registering: " + error.message);
+      }
     }
   };
 
   const registerByGoogle = async () => {
-
-    if (selectedGenres.length < 2) {
+    if (selectedGenres.length < 10) {
       alert("Please select at least 10 genres.");
       return;
     }
 
     try {
-      const user = (await signInWithPopup(auth, new GoogleAuthProvider())).user;
+      const provider = new GoogleAuthProvider();
+      const userCredential = await signInWithPopup(auth, provider);
+      const user = userCredential.user;
+
+      const userDocRef = doc(firestore, "users", user.uid);
+      const docSnapshot = await setDoc(userDocRef, {
+        genres: selectedGenres,
+        purchasedMovies: [],
+        cart: [],
+      });
+
       setUser(user);
-      const docRef = doc(firestore, "users", user.uid);
-      await setDoc(docRef, userGenres.toJS());
-      navigate('/movies');
+      setUserGenres(selectedGenres);
+      navigate("/movies");
     } catch (error) {
-      alert("Error registering!");
+      alert("Error registering with Google: " + error.message);
     }
   };
 
@@ -71,7 +108,7 @@ function RegisterView() {
     <div className="register-container">
       <div className="form-container">
         <h2>Create an Account</h2>
-        <form onSubmit={(e) => registerByEmail(e)}>
+        <form onSubmit={registerByEmail}>
           <label htmlFor="first-name">First Name</label>
           <input
             type="text"
@@ -130,7 +167,7 @@ function RegisterView() {
                   <input
                     type="checkbox"
                     value={genre}
-                    onChange={(e) => handleCheckboxChange(e)}
+                    onChange={handleCheckboxChange}
                   />
                   {genre}
                 </label>
@@ -138,12 +175,15 @@ function RegisterView() {
             ))}
           </fieldset>
 
-
-          <button type="submit" className="register-button">Register</button>
-          <button onClick={() => registerByGoogle()} className="register-button">Register by Google</button>
+          <button type="submit" className="register-button">
+            Register with Email
+          </button>
+          <button type="button" onClick={registerByGoogle} className="register-button">
+            Register with Google
+          </button>
         </form>
         <p className="login-link">
-          Already have an account? <a href="login">Login</a>
+          Already have an account? <a href="/login">Login</a>
         </p>
       </div>
     </div>
