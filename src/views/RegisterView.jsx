@@ -13,7 +13,7 @@ function RegisterView() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [selectedGenres, setSelectedGenres] = useState([]);
-  const { setUser, setUserGenres } = useStoreContext();
+  const { setUser, setUserGenres, purchasedMovies, setPurchasedMovies } = useStoreContext();
   const navigate = useNavigate();
 
   const genres = [
@@ -62,8 +62,8 @@ function RegisterView() {
       const userDocRef = doc(firestore, "users", user.uid);
       await setDoc(userDocRef, {
         genres: selectedGenres,
-        purchasedMovies: [],
-        cart: [],
+        moviesPurchased: purchasedMovies,
+        //cart: [],
       });
 
       setUser(user);
@@ -92,8 +92,8 @@ function RegisterView() {
       const userDocRef = doc(firestore, "users", user.uid);
       const docSnapshot = await setDoc(userDocRef, {
         genres: selectedGenres,
-        purchasedMovies: [],
-        cart: [],
+        moviesPurchased: purchasedMovies,
+        // cart: [],
       });
 
       setUser(user);

@@ -2,41 +2,31 @@ import { useStoreContext } from "../context";
 import { firestore } from "../firebase";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import "./Cartview.css";
+import { useEffect } from "react";
+import { Map } from "immutable";
 
 function CartView() {
   const { user, cart, setCart, purchasedMovies, setPurchasedMovies } = useStoreContext();
 
   const checkout = async () => {
-    if (!user) {
-      alert("Please log in to proceed with the purchase.");
-      return;
-    }
-
-    // Convert cart to a plain JS object
     const purchasedMoviesData = cart.toJS();
     const docRef = doc(firestore, "users", user.uid);
 
     try {
-      // Get user's Firestore document
       const userDoc = await getDoc(docRef);
 
       if (userDoc.exists()) {
-        // Merge existing purchased movies with the new ones
         const existingPurchases = userDoc.data().purchasedMovies || {};
         await setDoc(docRef, { purchasedMovies: { ...existingPurchases, ...purchasedMoviesData } });
       } else {
-        // Create new Firestore document if it doesn't exist
         await setDoc(docRef, { purchasedMovies: purchasedMoviesData });
       }
 
-      // Update local state for purchased movies
       setPurchasedMovies((prev) => ({ ...prev, ...purchasedMoviesData }));
 
-      // Clear the cart and localStorage
       setCart(cart.clear());
       localStorage.removeItem("cart");
 
-      // Display a thank-you message
       alert("Thank you for your purchase!");
     } catch (error) {
       console.error("Error during checkout:", error);
@@ -44,8 +34,13 @@ function CartView() {
     }
   };
 
-  // Prevent adding purchased movies to the cart
-  const isMoviePurchased = (movieId) => !!purchasedMovies[movieId];
+  useEffect(() => {
+    if (localStorage.getItem(`cart_${user.email}`)) {
+      setCart(Map(JSON.parse(localStorage.getItem(`cart_${user.email}`))));
+    }
+  }, [])
+
+  // make the remove button as a function to remove the movies from cart when clicked 
 
   return (
     <div className="cart-view">

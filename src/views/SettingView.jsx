@@ -14,8 +14,8 @@ function SettingsView() {
     "History", "Horror", "Music", "Mystery", "Sci-Fi", "Thriller", "War", "Western"
   ];
 
-  if (user.emailVerifided) {
-    
+  if (user.emailVerifided = false) {
+
   };
 
   const handleInputChange = (e) => {

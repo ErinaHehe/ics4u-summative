@@ -9,7 +9,7 @@ function DetailView() {
   const [movieDetails, setMovieDetails] = useState(null);
   const [trailers, setTrailers] = useState([]);
   const { user, cart, setCart } = useStoreContext();
-  
+
   /*const addToCart = () => {
     setCart((prevCart) => {
       const cart = prevCart.set(params.id, { title: movie.original_title, url: movie.poster_path });
@@ -50,10 +50,13 @@ function DetailView() {
   }, [id]);
 
   const handleBuyClick = (movie) => {
-    setCart((prevCart) =>
-      prevCart.has(movie.id)
+    setCart((prevCart) => {
+      const temp = prevCart.has(movie.id)
         ? prevCart.delete(movie.id)
         : prevCart.set(movie.id, { title: movie.title, url: movie.poster_path })
+        localStorage.setItem(`cart_${user.email}`, JSON.stringify(temp.toJS()));
+        return temp;
+    }
     );
   };
 
