@@ -1,22 +1,42 @@
 import "./SettingView.css";
-import { useState } from "react";
-import { Set } from 'immutable';
+import { useState, useEffect } from "react";
+import { useStoreContext } from "../context";
+import { auth, firestore } from "../firebase";
+import { updateProfile, updatePassword } from "firebase/auth";
+import { doc, updateDoc, getDoc } from "firebase/firestore";
 
-function SettingsView() {
+function SettingView() {
+  const { user, setUser, userGenres, setUserGenres } = useStoreContext();
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    selectedGenres: Set(),
+    firstName: user?.displayName?.split(" ")[0] || "",
+    lastName: user?.displayName?.split(" ")[1] || "",
+    selectedGenres: userGenres || [],
+    password: "",
+    confirmPassword: "",
   });
+  const [pastPurchases, setPastPurchases] = useState([]);
 
   const genres = [
     "Action", "Adventure", "Animation", "Comedy", "Crime", "Family", "Fantasy",
-    "History", "Horror", "Music", "Mystery", "Sci-Fi", "Thriller", "War", "Western"
+    "History", "Horror", "Music", "Mystery", "Sci-Fi", "Thriller", "War", "Western",
   ];
 
-  if (user.emailVerifided = false) {
-
-  };
+  useEffect(() => {
+    const fetchPastPurchases = async () => {
+      if (user?.uid) {
+        try {
+          const userDocRef = doc(firestore, "users", user.uid);
+          const docSnapshot = await getDoc(userDocRef);
+          if (docSnapshot.exists()) {
+            setPastPurchases(docSnapshot.data().moviesPurchased || []);
+          }
+        } catch (error) {
+          console.error("Error fetching past purchases:", error);
+        }
+      }
+    };
+    fetchPastPurchases();
+  }, [user]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -27,23 +47,48 @@ function SettingsView() {
     const { value, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
-      preferredGenres: checked
-        ? [...prev.preferredGenres, value]
-        : prev.preferredGenres.filter((genre) => genre !== value)
+      selectedGenres: checked
+        ? [...prev.selectedGenres, value]
+        : prev.selectedGenres.filter((genre) => genre !== value),
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const { firstName, lastName, preferredGenres } = formData;
+    const { firstName, lastName, selectedGenres, password, confirmPassword } = formData;
 
-    if (!firstName || !lastName || preferredGenres.length === 0) {
-      alert("Please fill out all fields and select at least ten genre.");
+    if (auth.currentUser?.providerData[0]?.providerId !== "password") {
+      alert("Only users who signed in via email can update these settings.");
       return;
     }
 
-    setUser({ ...user, firstName, lastName, preferredGenres });
-    alert("Settings updated successfully!");
+    if (selectedGenres.length < 10) {
+      alert("Please select at least 10 genres.");
+      return;
+    }
+
+    try {
+      if (firstName || lastName) {
+        const displayName = `${firstName} ${lastName}`.trim();
+        await updateProfile(auth.currentUser, { displayName });
+        setUser({ ...user, displayName });
+      }
+
+      if (password && password === confirmPassword) {
+        await updatePassword(auth.currentUser, password);
+      } else if (password && password !== confirmPassword) {
+        alert("Passwords do not match.");
+        return;
+      }
+
+      const userDocRef = doc(firestore, "users", user.uid);
+      await updateDoc(userDocRef, { genres: selectedGenres });
+      setUserGenres(selectedGenres);
+
+      alert("Settings updated successfully!");
+    } catch (error) {
+      alert(`Error updating settings: ${error.message}`);
+    }
   };
 
   return (
@@ -51,14 +96,45 @@ function SettingsView() {
       <div className="form-container">
         <h2>Settings</h2>
         <form onSubmit={handleSubmit}>
-          <label htmlFor="first-name">First name</label>
-          <input type="text" id="first-name" name="firstName" value={formData.firstName} onChange={(e) => handleInputChange(e)} />
+          <label htmlFor="first-name">First Name</label>
+          <input
+            type="text"
+            id="first-name"
+            name="firstName"
+            value={formData.firstName}
+            onChange={handleInputChange}
+            disabled={!user?.emailVerified}
+          />
 
-          <label htmlFor="last-name">Last name</label>
-          <input type="text" id="last-name" name="lastName" value={formData.lastName} onChange={(e) => handleInputChange(e)} />
+          <label htmlFor="last-name">Last Name</label>
+          <input
+            type="text"
+            id="last-name"
+            name="lastName"
+            value={formData.lastName}
+            onChange={handleInputChange}
+            disabled={!user?.emailVerified}
+          />
 
-          <label htmlFor="email">Email</label>
-          <input type="email" id="email" name="email" value={formData.email} onChange={(e) => handleInputChange(e)} disabled />
+          <label htmlFor="password">New Password</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            value={formData.password}
+            onChange={handleInputChange}
+            disabled={!user?.emailVerified}
+          />
+
+          <label htmlFor="confirm-password">Confirm Password</label>
+          <input
+            type="password"
+            id="confirm-password"
+            name="confirmPassword"
+            value={formData.confirmPassword}
+            onChange={handleInputChange}
+            disabled={!user?.emailVerified}
+          />
 
           <fieldset>
             <legend>Update Your Favorite Genres (at least 10)</legend>
@@ -68,7 +144,8 @@ function SettingsView() {
                   <input
                     type="checkbox"
                     value={genre}
-                    onChange={(e) => handleCheckboxChange(e)}
+                    checked={formData.selectedGenres.includes(genre)}
+                    onChange={handleCheckboxChange}
                   />
                   {genre}
                 </label>
@@ -77,6 +154,13 @@ function SettingsView() {
           </fieldset>
 
           <h2>Past Purchases</h2>
+          <ul>
+            {pastPurchases.length > 0 ? (
+              pastPurchases.map((movie, index) => <li key={index}>{movie}</li>)
+            ) : (
+              <p>No past purchases found.</p>
+            )}
+          </ul>
 
           <button type="submit" className="settings-button">Save Changes</button>
         </form>
@@ -85,4 +169,4 @@ function SettingsView() {
   );
 }
 
-export default SettingsView;
+export default SettingView;
