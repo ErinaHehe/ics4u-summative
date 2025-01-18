@@ -8,6 +8,7 @@ import MoviesView from "../src/views/MoviesView.jsx";
 import RegisterView from "../src/views/RegisterView.jsx";
 import CartView from "../src/views/CartView.jsx";
 import SettingView from "../src/views/SettingView.jsx";
+import ErrorView from "./views/ErrorView";
 import ProtectedRoutes from "./util/ProtectedRoutes";
 import './App.css';
 
@@ -28,6 +29,7 @@ function App() {
               <Route path="/movies/details/:id" element={<DetailView />} />
             </Route>
           </Route>
+          <Route path="*" element={<ErrorView />} />
         </Routes>
       </BrowserRouter>
     </StoreProvider>

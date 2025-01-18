@@ -38,9 +38,7 @@ function CartView() {
     if (localStorage.getItem(`cart_${user.email}`)) {
       setCart(Map(JSON.parse(localStorage.getItem(`cart_${user.email}`))));
     }
-  }, [])
-
-  // make the remove button as a function to remove the movies from cart when clicked 
+  }, [user.email, setCart]);
 
   return (
     <div className="cart-view">
@@ -57,7 +55,17 @@ function CartView() {
           <div className="cart-item" key={key}>
             <img src={`https://image.tmdb.org/t/p/w500${value.url}`} alt={value.title} />
             <h1>{value.title}</h1>
-            <button onClick={() => setCart((prevCart) => prevCart.delete(key))}>Remove</button>
+            <button
+              onClick={() => {
+                setCart((prevCart) => {
+                  const updatedCart = prevCart.delete(key);
+                  localStorage.setItem(`cart_${user.email}`, JSON.stringify(updatedCart.toJS())); // Update local storage
+                  return updatedCart;
+                });
+              }}
+            >
+              Remove
+            </button>
           </div>
         ))}
       </div>
