@@ -6,7 +6,7 @@ import "./MoviesView.css";
 
 function MoviesView() {
   const navigate = useNavigate();
-  const { user, setUser, genres, setGenres } = useStoreContext();
+  const { user, setUser, userGenres } = useStoreContext();
 
   function logout() {
     setUser(null);
@@ -15,11 +15,11 @@ function MoviesView() {
   }
 
   function cart() {
-    navigate("/cart")
+    navigate("/cart");
   }
 
   function setting() {
-    navigate("/setting")
+    navigate("/setting");
   }
 
   const favGenres = [
@@ -40,38 +40,48 @@ function MoviesView() {
     { genre: "Western", id: 37 },
   ];
 
-    function handleGenreClick(id) {
-      navigate(`/movies/genre/${id}`);
-    }
-
-    return (
-      <div className="app-container">
-        <div className="header">
-          <h1>{`Hello ${user.displayName}!`}</h1>
-          <button onClick={() => setting()} className="setting-button">Setting</button>
-          <button onClick={() => cart()} className="cart-button">Cart</button>
-          <button onClick={() => logout()} className="logout-button">Logout</button>
-
-        </div>
-        <div className="filter">
-          <h3>Genres</h3>
-          <ul id="with_favGenres" className="multi_select text">
-            {favGenres.map((genre) => (
-              <li
-                key={genre.id}
-                className="genre-item"
-                onClick={() => handleGenreClick(genre.id)}
-              >
-                {genre.genre}
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div className="main-content">
-          <Outlet />
-        </div>
-      </div>
-    );
+  function handleGenreClick(id) {
+    navigate(`/movies/genre/${id}`);
   }
 
-  export default MoviesView;
+  // Filter `favGenres` based on the user's selected genres
+  const displayedGenres = favGenres.filter((genre) =>
+    userGenres?.includes(genre.genre)
+  );
+
+  return (
+    <div className="app-container">
+      <div className="header">
+        <h1>{`Hello ${user.displayName}!`}</h1>
+        <button onClick={setting} className="setting-button">
+          Setting
+        </button>
+        <button onClick={cart} className="cart-button">
+          Cart
+        </button>
+        <button onClick={logout} className="logout-button">
+          Logout
+        </button>
+      </div>
+      <div className="filter">
+        <h3>Genres</h3>
+        <ul id="with_favGenres" className="multi_select text">
+          {displayedGenres.map((genre) => (
+            <li
+              key={genre.id}
+              className="genre-item"
+              onClick={() => handleGenreClick(genre.id)}
+            >
+              {genre.genre}
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div className="main-content">
+        <Outlet />
+      </div>
+    </div>
+  );
+}
+
+export default MoviesView;

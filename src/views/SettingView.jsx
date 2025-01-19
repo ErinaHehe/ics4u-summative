@@ -14,7 +14,7 @@ function SettingView() {
     password: "",
     confirmPassword: "",
   });
-  const [pastPurchases, setPastPurchases] = useState([]);
+  const [pastPurchases, setPastPurchases] = useState(null);
 
   const genres = [
     "Action", "Adventure", "Animation", "Comedy", "Crime", "Family", "Fantasy",
@@ -28,7 +28,7 @@ function SettingView() {
           const userDocRef = doc(firestore, "users", user.uid);
           const docSnapshot = await getDoc(userDocRef);
           if (docSnapshot.exists()) {
-            setPastPurchases(docSnapshot.data().moviesPurchased || []);
+            setPastPurchases(docSnapshot.data().purchasedMovies || []);
           }
         } catch (error) {
           console.error("Error fetching past purchases:", error);
@@ -36,6 +36,7 @@ function SettingView() {
       }
     };
     fetchPastPurchases();
+    console.log(pastPurchases)
   }, [user]);
 
   const handleInputChange = (e) => {
@@ -155,8 +156,8 @@ function SettingView() {
 
           <h2>Past Purchases</h2>
           <ul>
-            {pastPurchases.length > 0 ? (
-              pastPurchases.map((movie, index) => <li key={index}>{movie}</li>)
+            {pastPurchases ? (
+              Object.entries(pastPurchases).map(([key, value]) => (<li key={key}>{value.title}</li>))
             ) : (
               <p>No past purchases found.</p>
             )}
