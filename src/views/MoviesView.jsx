@@ -1,12 +1,28 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import { useStoreContext } from "../context";
 import { signOut } from "firebase/auth";
-import { auth } from "../firebase";
+import { auth, firestore } from "../firebase";
+import { doc, getDoc } from "firebase/firestore";
+import { useEffect } from "react";
 import "./MoviesView.css";
 
 function MoviesView() {
   const navigate = useNavigate();
-  const { user, setUser, userGenres } = useStoreContext();
+  const { user, setUser, userGenres, setUserGenres } = useStoreContext();
+
+  useEffect(() => {
+    async function fetchUserGenres() {
+      if (user) {
+        const userDocRef = doc(firestore, "users", user.uid);
+        const docSnapshot = await getDoc(userDocRef);
+
+        if (docSnapshot.exists()) {
+          setUserGenres(docSnapshot.data().genres || []);
+        }
+      }
+    }
+    fetchUserGenres();
+  }, [user, setUserGenres]);
 
   function logout() {
     setUser(null);
@@ -44,7 +60,6 @@ function MoviesView() {
     navigate(`/movies/genre/${id}`);
   }
 
-  // Filter `favGenres` based on the user's selected genres
   const displayedGenres = favGenres.filter((genre) =>
     userGenres?.includes(genre.genre)
   );

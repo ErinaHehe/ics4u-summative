@@ -26,7 +26,7 @@ function LoginView() {
     }
   }
 
-  async function loginByGoogle() { // TypeError: setUser is not a function at loginByGoogle
+  async function loginByGoogle() { 
     try {
       const user = (await signInWithPopup(auth, new GoogleAuthProvider())).user;
       navigate('/movies');
