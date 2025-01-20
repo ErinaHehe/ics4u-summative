@@ -2,7 +2,12 @@ import "./SettingView.css";
 import { useState, useEffect } from "react";
 import { useStoreContext } from "../context";
 import { auth, firestore } from "../firebase";
-import { updateProfile, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
+import {
+  updateProfile,
+  updatePassword,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
+} from "firebase/auth";
 import { doc, updateDoc, getDoc } from "firebase/firestore";
 
 function SettingView() {
@@ -10,7 +15,7 @@ function SettingView() {
   const [formData, setFormData] = useState({
     firstName: user?.displayName?.split(" ")[0] || "",
     lastName: user?.displayName?.split(" ")[1] || "",
-    selectedGenres: userGenres || [],
+    selectedGenres: [],
     password: "",
     confirmPassword: "",
     currentPassword: "",
@@ -19,11 +24,43 @@ function SettingView() {
   const [loading, setLoading] = useState(false);
 
   const genres = [
-    "Action", "Adventure", "Animation", "Comedy", "Crime", "Family", "Fantasy",
-    "History", "Horror", "Music", "Mystery", "Sci-Fi", "Thriller", "War", "Western",
+    "Action",
+    "Adventure",
+    "Animation",
+    "Comedy",
+    "Crime",
+    "Family",
+    "Fantasy",
+    "History",
+    "Horror",
+    "Music",
+    "Mystery",
+    "Sci-Fi",
+    "Thriller",
+    "War",
+    "Western",
   ];
 
   useEffect(() => {
+    const fetchUserGenres = async () => {
+      if (user?.uid) {
+        try {
+          const userDocRef = doc(firestore, "users", user.uid);
+          const docSnapshot = await getDoc(userDocRef);
+          if (docSnapshot.exists()) {
+            const fetchedGenres = docSnapshot.data().genres || [];
+            setFormData((prev) => ({
+              ...prev,
+              selectedGenres: fetchedGenres,
+            }));
+            setUserGenres(fetchedGenres); // Update context
+          }
+        } catch (error) {
+          console.error("Error fetching user genres:", error);
+        }
+      }
+    };
+
     const fetchPastPurchases = async () => {
       if (user?.uid) {
         try {
@@ -37,8 +74,10 @@ function SettingView() {
         }
       }
     };
+
+    fetchUserGenres();
     fetchPastPurchases();
-  }, [user]);
+  }, [user, setUserGenres]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -65,7 +104,8 @@ function SettingView() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { firstName, lastName, selectedGenres, password, confirmPassword, currentPassword } = formData;
+    const { firstName, lastName, selectedGenres, password, confirmPassword, currentPassword } =
+      formData;
 
     if (!auth.currentUser) {
       alert("User is not authenticated.");
@@ -114,14 +154,8 @@ function SettingView() {
 
       alert("Settings updated successfully!");
     } catch (error) {
-      if (error.code === "auth/wrong-password") {
-        alert("The current password is incorrect.");
-      } else if (error.code === "auth/requires-recent-login") {
-        alert("Please log out and log back in to perform this action.");
-      } else {
-        console.error("Error updating settings:", error);
-        alert(`Error updating settings: ${error.message}`);
-      }
+      console.error("Error updating settings:", error);
+      alert(`Error updating settings: ${error.message}`);
     } finally {
       setLoading(false);
     }
