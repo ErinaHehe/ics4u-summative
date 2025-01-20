@@ -2,7 +2,7 @@ import "./SettingView.css";
 import { useState, useEffect } from "react";
 import { useStoreContext } from "../context";
 import { auth, firestore } from "../firebase";
-import { updateProfile, updatePassword } from "firebase/auth";
+import { updateProfile, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
 import { doc, updateDoc, getDoc } from "firebase/firestore";
 
 function SettingView() {
@@ -13,8 +13,10 @@ function SettingView() {
     selectedGenres: userGenres || [],
     password: "",
     confirmPassword: "",
+    currentPassword: "",
   });
   const [pastPurchases, setPastPurchases] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const genres = [
     "Action", "Adventure", "Animation", "Comedy", "Crime", "Family", "Fantasy",
@@ -36,7 +38,6 @@ function SettingView() {
       }
     };
     fetchPastPurchases();
-    console.log(pastPurchases)
   }, [user]);
 
   const handleInputChange = (e) => {
@@ -54,12 +55,29 @@ function SettingView() {
     }));
   };
 
+  const reauthenticate = async (currentPassword) => {
+    const userCredential = EmailAuthProvider.credential(
+      auth.currentUser.email,
+      currentPassword
+    );
+    await reauthenticateWithCredential(auth.currentUser, userCredential);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { firstName, lastName, selectedGenres, password, confirmPassword } = formData;
+    const { firstName, lastName, selectedGenres, password, confirmPassword, currentPassword } = formData;
 
-    if (auth.currentUser?.providerData[0]?.providerId !== "password") {
-      alert("Only users who signed in via email can update these settings.");
+    if (!auth.currentUser) {
+      alert("User is not authenticated.");
+      return;
+    }
+
+    const isEmailProvider = auth.currentUser.providerData.some(
+      (provider) => provider.providerId === "password"
+    );
+
+    if (!isEmailProvider) {
+      alert("Only users signed in via email can update their name and password.");
       return;
     }
 
@@ -68,18 +86,26 @@ function SettingView() {
       return;
     }
 
+    if (password && password !== confirmPassword) {
+      alert("Passwords do not match.");
+      return;
+    }
+
+    setLoading(true);
+
     try {
-      if (firstName || lastName) {
-        const displayName = `${firstName} ${lastName}`.trim();
-        await updateProfile(auth.currentUser, { displayName });
-        setUser({ ...user, displayName });
+      if (password) {
+        await reauthenticate(currentPassword);
       }
 
-      if (password && password === confirmPassword) {
+      const displayName = `${firstName} ${lastName}`.trim();
+      if (displayName && displayName !== user?.displayName) {
+        await updateProfile(auth.currentUser, { displayName });
+        setUser((prev) => ({ ...prev, displayName }));
+      }
+
+      if (password) {
         await updatePassword(auth.currentUser, password);
-      } else if (password && password !== confirmPassword) {
-        alert("Passwords do not match.");
-        return;
       }
 
       const userDocRef = doc(firestore, "users", user.uid);
@@ -88,7 +114,16 @@ function SettingView() {
 
       alert("Settings updated successfully!");
     } catch (error) {
-      alert(`Error updating settings: ${error.message}`);
+      if (error.code === "auth/wrong-password") {
+        alert("The current password is incorrect.");
+      } else if (error.code === "auth/requires-recent-login") {
+        alert("Please log out and log back in to perform this action.");
+      } else {
+        console.error("Error updating settings:", error);
+        alert(`Error updating settings: ${error.message}`);
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -104,7 +139,7 @@ function SettingView() {
             name="firstName"
             value={formData.firstName}
             onChange={handleInputChange}
-            disabled={!user?.emailVerified}
+            disabled={loading}
           />
 
           <label htmlFor="last-name">Last Name</label>
@@ -114,7 +149,18 @@ function SettingView() {
             name="lastName"
             value={formData.lastName}
             onChange={handleInputChange}
-            disabled={!user?.emailVerified}
+            disabled={loading}
+          />
+
+          <label htmlFor="current-password">Current Password</label>
+          <input
+            type="password"
+            id="current-password"
+            name="currentPassword"
+            value={formData.currentPassword}
+            onChange={handleInputChange}
+            disabled={loading}
+            required={formData.password}
           />
 
           <label htmlFor="password">New Password</label>
@@ -124,17 +170,17 @@ function SettingView() {
             name="password"
             value={formData.password}
             onChange={handleInputChange}
-            disabled={!user?.emailVerified}
+            disabled={loading}
           />
 
-          <label htmlFor="confirm-password">Confirm Password</label>
+          <label htmlFor="confirm-password">Confirm New Password</label>
           <input
             type="password"
             id="confirm-password"
             name="confirmPassword"
             value={formData.confirmPassword}
             onChange={handleInputChange}
-            disabled={!user?.emailVerified}
+            disabled={loading}
           />
 
           <fieldset>
@@ -147,6 +193,7 @@ function SettingView() {
                     value={genre}
                     checked={formData.selectedGenres.includes(genre)}
                     onChange={handleCheckboxChange}
+                    disabled={loading}
                   />
                   {genre}
                 </label>
@@ -157,13 +204,17 @@ function SettingView() {
           <h2>Past Purchases</h2>
           <ul>
             {pastPurchases ? (
-              Object.entries(pastPurchases).map(([key, value]) => (<li key={key}>{value.title}</li>))
+              Object.entries(pastPurchases).map(([key, value]) => (
+                <li key={key}>{value.title}</li>
+              ))
             ) : (
               <p>No past purchases found.</p>
             )}
           </ul>
 
-          <button type="submit" className="settings-button">Save Changes</button>
+          <button type="submit" className="settings-button" disabled={loading}>
+            {loading ? "Saving..." : "Save Changes"}
+          </button>
         </form>
       </div>
     </div>

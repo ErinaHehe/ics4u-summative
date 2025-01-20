@@ -16,16 +16,26 @@ function CartView() {
       const userDoc = await getDoc(docRef);
 
       if (userDoc.exists()) {
-        const existingPurchases = userDoc.data().purchasedMovies || {};
-        await setDoc(docRef, { purchasedMovies: { ...existingPurchases, ...purchasedMoviesData } });
+        const existingData = userDoc.data();
+        const existingPurchases = existingData.purchasedMovies || {};
+
+        // Update Firestore document while preserving other fields like genres
+        await setDoc(docRef, {
+          ...existingData, // Retain existing fields
+          purchasedMovies: { ...existingPurchases, ...purchasedMoviesData },
+        });
       } else {
-        await setDoc(docRef, { purchasedMovies: purchasedMoviesData });
+        // Create a new document if it doesn't exist
+        await setDoc(docRef, {
+          purchasedMovies: purchasedMoviesData,
+          genres: userGenres || [], // Ensure genres are set even if the document is new
+        });
       }
 
       setPurchasedMovies((prev) => ({ ...prev, ...purchasedMoviesData }));
 
       setCart(cart.clear());
-      localStorage.removeItem("cart");
+      localStorage.removeItem(`cart_${user.email}`);
 
       alert("Thank you for your purchase!");
     } catch (error) {
